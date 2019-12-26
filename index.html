@@ -18,6 +18,16 @@
     <link rel="stylesheet" href="assets/plugins/bootstrap/css/bootstrap.min.css">   
     <!-- Theme CSS -->  
     <link id="theme-style" rel="stylesheet" href="assets/css/orbit-1.css">
+
+    <style>
+        .article {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    </style>
 </head> 
 
 <body>
@@ -158,27 +168,7 @@
                 </div> -->
                 
             </section><!--//section-->
-            
-            <section class="section projects-section">
-                <h2 class="section-title">
-                    <span class="icon-holder"><i class="fas fa-archive"></i></span>
-                    Projects
-                </h2>
-                <div class="intro">
-                    <p>จริงๆ ผมทำอะไรหลายอย่างน่ะ แต่บ้างเปิดเผยไม่ได้ที่นี่ ไว้จะมาเขียนทีหลัง</p>
-                </div><!--//intro-->
-                <!-- <div class="item">
-                    <span class="project-title">
-                        <a href="#hook">Velocity</a>
-                    </span> - 
-                    <span class="project-tagline">
-                        A responsive website template designed to help startups promote,
-                        market and sell their products.
-                    </span>
-                </div> -->
-                <!--//item-->
-            </section><!--//section-->
-            
+
             <section class="skills-section section">
                 <h2 class="section-title">
                     <span class="icon-holder">
@@ -243,6 +233,24 @@
                     
                 </div>  
             </section><!--//skills-section-->
+
+            <section id="articles" class="section projects-section">
+                <h2 class="section-title">
+                    <span class="icon-holder"><i class="fas fa-sticky-note"></i></span>
+                    Articles
+                </h2>
+                <!-- <div class="intro">
+                    <p>จริงๆ ผมทำอะไรหลายอย่างน่ะ แต่บ้างเปิดเผยไม่ได้ที่นี่ ไว้จะมาเขียนทีหลัง</p>
+                </div> -->
+                <!-- //intro -->
+                <div class="item article" v-for="article in articles" >
+                    <span class="project-title">
+                        <a v-bind:href="article.link" v- >{{article.title}}</a>
+                    </span> - 
+                    <span class="project-tagline">{{article.content}}</span>
+                </div>
+                <!--//item-->
+            </section><!--//section articles -->
             
         </div><!--//main-body-->
     </div>
@@ -253,7 +261,41 @@
                 <small class="copyright">Designed with <i class="fas fa-heart"></i> by <a href="http://themes.3rdwavemedia.com" target="_blank">Xiaoying Riley</a> for developers</small>
         </div><!--//container-->
     </footer><!--//footer-->
-        
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <script>
+        new Vue({
+            el: '#articles',
+            data: {
+                articles: [],
+            },
+            created:  function(event) {
+                const FEED_URL = "https://cors-anywhere.herokuapp.com/https://medium.com/feed/@markvachi";
+                fetch(FEED_URL).then((res) => {
+                    res.text().then((htmlTxt) => {
+                        var domParser = new DOMParser()
+                        let doc = domParser.parseFromString(htmlTxt, 'text/html')
+                        var item = doc.querySelectorAll('item')
+                        console.log(item);
+                        this.articles = [];
+                        for (let index = 0; index < item.length; index++) {
+                            const it = item[index];
+                            this.articles.push({
+                                link: it.querySelector('guid').innerHTML,
+                                title: it.querySelector('title').text.replace("<![CDATA[", "").replace("]]>", ""),
+                                content: it.querySelector('content\\:encoded').textContent,
+                            });
+                        }
+
+                        this.articles = this.articles.slice(1, 5);
+                        console.log(item, this.articles);
+                    })
+                }).catch(() => console.error('Error in fetching the website'));
+            },
+            methods: {
+
+            },
+        });
+    </script>
 </body>
 </html> 
 
